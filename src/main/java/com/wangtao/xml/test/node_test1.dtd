@@ -1,0 +1,21 @@
+<!ELEMENT employee (blah?,first_name?,last_name?,birth_date?,height?,weight?, active?)>
+    <!ATTLIST employee id CDATA #REQUIRED>
+
+    <!ELEMENT blah EMPTY>
+    <!ATTLIST blah something CDATA #REQUIRED>
+
+    <!ELEMENT first_name (#PCDATA)>
+    <!ELEMENT last_name (#PCDATA)>
+
+    <!ELEMENT birth_date (year?, month, day?)>
+    <!ELEMENT year (#PCDATA)>
+    <!ELEMENT month (#PCDATA)>
+    <!ELEMENT day (#PCDATA)>
+
+    <!ELEMENT height (#PCDATA)>
+    <!ATTLIST height units CDATA #REQUIRED>
+
+    <!ELEMENT weight (#PCDATA)>
+    <!ATTLIST weight units CDATA #REQUIRED>
+
+    <!ELEMENT active (#PCDATA)>
