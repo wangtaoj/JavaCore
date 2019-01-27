@@ -2,6 +2,8 @@ package com.wangtao.xml.xpath;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.*;
 
 import javax.xml.namespace.QName;
@@ -12,16 +14,27 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by wangtao at 2019/1/5 17:00
  */
 public class XpathParser {
 
+    /**
+     * 文档对象
+     */
     private final Document document;
 
+    /**
+     * 是否根据DTD文件校验XML文档
+     */
     private boolean validating;
 
+    /**
+     * 用来定位XML文档内部引用的外部文件
+     */
     private EntityResolver entityResolver;
 
     private XPath xpath;
@@ -63,6 +76,30 @@ public class XpathParser {
 
     public Double evalDouble(String expression, Object root) {
         return Double.valueOf(evalString(expression, root));
+    }
+
+    public XNode evalNode(String expression) {
+        return evalNode(expression, document);
+    }
+
+    public XNode evalNode(String expression, Object root) {
+        Node node = (Node) evaluate(expression, root, XPathConstants.NODE);
+        return new XNode(node, this);
+    }
+
+    public List<XNode> evalNodes(String expression) {
+        return evalNodes(expression, document);
+    }
+
+    public List<XNode> evalNodes(String expression, Object root) {
+        List<XNode> xnodes = new ArrayList<>();
+        NodeList nodeList = (NodeList) evaluate(expression, root, XPathConstants.NODESET);
+        if (nodeList != null) {
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                xnodes.add(new XNode(nodeList.item(i), this));
+            }
+        }
+        return xnodes;
     }
 
     private Object evaluate(String expression, Object root, QName qName) {
@@ -115,12 +152,7 @@ public class XpathParser {
         }
     }
 
-    public static XpathParserBuilder createBuilder() {
-        return new XpathParserBuilder();
-    }
-
-
-    public static class XpathParserBuilder {
+    public static class Builder {
 
         private boolean validating;
 
@@ -130,30 +162,30 @@ public class XpathParser {
 
         private String resource;
 
-        public XpathParserBuilder setValidating(boolean validating) {
+        public Builder validating(boolean validating) {
             this.validating = validating;
             return this;
         }
 
-        public XpathParserBuilder setEntityResolver(EntityResolver entityResolver) {
+        public Builder entityResolver(EntityResolver entityResolver) {
             this.entityResolver = entityResolver;
             return this;
         }
 
-        public XpathParserBuilder setReader(Reader reader) {
+        public Builder reader(Reader reader) {
             this.reader = reader;
             return this;
         }
 
-        public XpathParserBuilder setResource(String resource) {
+        public Builder resource(String resource) {
             this.resource = resource;
             return this;
         }
 
         public XpathParser build() {
-            if(reader != null) {
+            if (reader != null) {
                 return new XpathParser(new InputSource(reader), validating, entityResolver);
-            } else if(resource != null) {
+            } else if (resource != null) {
                 return new XpathParser(new InputSource(resource), validating, entityResolver);
             }
             throw new RuntimeException("请指定一个字符流或者资源位置");
