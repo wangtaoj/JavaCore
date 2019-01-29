@@ -38,5 +38,6 @@ public class GenericArray3<T> {
         System.out.println(s);
         String[] array = genericArray.getArray();
         System.out.println(Arrays.toString(array));
+        System.out.println(array.getClass());
     }
 }
