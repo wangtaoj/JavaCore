@@ -8,9 +8,8 @@ import com.wangtao.reflection.type.TypeParameterResolver;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
+import java.util.List;
 
 /**
  * @author wangtao
@@ -69,6 +68,39 @@ public class TypeParameterResolverTest {
             type = TypeParameterResolver.resolveReturnType(method, First.class);
             Assert.assertTrue(type instanceof Class);
             Assert.assertEquals(Object.class, type);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void resolveWildcardTypeV1() {
+        try {
+            Method method = First.class.getMethod("wildcardMethod");
+            Type returnType = TypeParameterResolver.resolveReturnType(method, First.class);
+            Assert.assertTrue(returnType instanceof ParameterizedType);
+            ParameterizedType type = (ParameterizedType) returnType;
+            Assert.assertEquals(List.class, type.getRawType());
+            Assert.assertEquals(1, type.getActualTypeArguments().length);
+            Assert.assertTrue("?", type.getActualTypeArguments()[0] instanceof WildcardType);
+            Assert.assertEquals("?", type.getActualTypeArguments()[0].toString());
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void resolveWildcardTypeV2() {
+        try {
+            Class<?> clazz = Second.class;
+            Method method = clazz.getMethod("wildcardMethod");
+            Type returnType = TypeParameterResolver.resolveReturnType(method, clazz);
+            Assert.assertTrue(returnType instanceof ParameterizedType);
+            ParameterizedType type = (ParameterizedType) returnType;
+            Assert.assertEquals(List.class, type.getRawType());
+            Assert.assertEquals(1, type.getActualTypeArguments().length);
+            Assert.assertTrue(type.getActualTypeArguments()[0] instanceof WildcardType);
+            Assert.assertEquals("?", type.getActualTypeArguments()[0].toString());
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }

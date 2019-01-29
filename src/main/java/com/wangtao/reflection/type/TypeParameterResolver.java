@@ -148,13 +148,19 @@ public class TypeParameterResolver {
 
     private static Type resolveGenericArrayType(GenericArrayType type, Type srcType, Class<?> declaringClass) {
         Type componentType = type.getGenericComponentType();
-        Type newComponentType;
+        Type newComponentType = null;
+        // component type 要么是一个TypeVariable要么是一个ParameterizedType类型.
         if (componentType instanceof TypeVariable<?>) {
             newComponentType = resolveTypeVariable((TypeVariable<?>) componentType, srcType, declaringClass);
         } else if (componentType instanceof ParameterizedType) {
             newComponentType = resolveParameterizedType((ParameterizedType) componentType, srcType, declaringClass);
-        } else {
-            newComponentType = componentType;
+        } else if (componentType instanceof GenericArrayType) {
+            // 多维数组的情况, component type会是GenericArrayType类型
+            newComponentType = resolveGenericArrayType((GenericArrayType) componentType, srcType, declaringClass);
+        }
+        // 类型变量被解析成了原始类型, 那么就成了普通数组了.
+        if (newComponentType instanceof Class<?>) {
+            return Array.newInstance((Class<?>) newComponentType, 0).getClass();
         }
         return new GenericArrayTypeImpl(newComponentType);
     }
@@ -175,7 +181,7 @@ public class TypeParameterResolver {
             return typeVar.getBounds()[0];
         }
 
-        // 获取父类型, 继续解析
+        // 获取父类型, 继续解析, 希望借助父类型(带有泛型信息)从而得到此类型变量的运行时类型.
         Type superClassType = srcClass.getGenericSuperclass();
         Type result = scanSuperTypes(typeVar, superClassType, srcType, declaringClass);
         if (result != null) {
@@ -190,7 +196,11 @@ public class TypeParameterResolver {
                 return result;
             }
         }
-        return Object.class;
+        /*
+         * 经过以上步骤依然没有找到运行时类型, 返回此类型变量的上边界.
+         * 比如方法中定义的类型变量, 借助父类型是得不到正确的运行时类型, 因为父类没有该类型变量的声明信息.
+         */
+        return typeVar.getBounds()[0];
     }
 
     private static Type scanSuperTypes(TypeVariable<?> typeVar, Type superClassType, Type srcType, Class<?> declaringClass) {
@@ -199,8 +209,15 @@ public class TypeParameterResolver {
             ParameterizedType parentAsType = (ParameterizedType) superClassType;
             Class<?> parentAsClass = (Class<?>) ((ParameterizedType) superClassType).getRawType();
             /*
-             * 1. 如果当前类型是参数化类型, 那么利用当前类的实际运行参数将父类型中类型变量替换掉
+             * 1. 如果当前类型是参数化类型
+             *    1.1 参数传的是原生类型, 如果当前类型的父类型中实际运行参数中存在类型变量,
+             *        那么依然是类型变量, 无法根据子类(当前类型)来确定此类型变量的实际运行类型.
+             *    1.2 参数传的是参数化类型, 那么可以利用当前类型的实际运行参数将父类型中类型变量替换掉.
+             *    举例:
+             *    当前类型srcType = ArrayList, 则parentAsType = List<T>, 无法确定T.
+             *    当前类型srcClass = ArrayList<Integer>, 则parentAsType = List<T>, 可确定T = Integer.
              * 2. 如果当前类型是原生类型, 那么其父类型(带泛型信息)中声明的类型变量已经是真实参数了.
+             *
              * class A<T> {
              *     T item;
              * }
@@ -231,12 +248,12 @@ public class TypeParameterResolver {
                 for (int i = 0; i < typeVars.length; i++) {
                     if (typeVars[i] == typeVar) {
                         return typeArgs[i] instanceof TypeVariable<?> ?
-                                ((TypeVariable<?>)typeArgs[i]).getBounds()[0] : typeArgs[i];
+                                ((TypeVariable<?>) typeArgs[i]).getBounds()[0] : typeArgs[i];
                     }
                 }
             } else if (declaringClass.isAssignableFrom(parentAsClass)) {
                 // 继续向上递归解析
-                return resolveTypeVariable(typeVar, superClassType, declaringClass);
+                return resolveTypeVariable(typeVar, parentAsType, declaringClass);
             }
         } else if (superClassType instanceof Class<?> && declaringClass.isAssignableFrom((Class<?>) superClassType)) {
             // 父类型是原始类型, 继续往上递归解析.
