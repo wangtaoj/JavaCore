@@ -17,6 +17,8 @@ public class ProxyTest {
     /**
      * -Dsun.misc.ProxyGenerator.saveGeneratedFiles=true
      * 开启这个JVM参数会将动态生成的代理对象保存到硬盘
+     * 保存位置: ${project.dir}/com/sun/proxy
+     * 注: 不是src下, 而是项目根目录/com/sun/proxy
      */
     @Test
     public void testProxy()  {
