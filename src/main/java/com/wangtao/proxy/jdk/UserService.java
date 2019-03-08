@@ -12,4 +12,8 @@ public interface UserService {
     void service();
 
     void add();
+
+    default void close() {
+        System.out.println("execute default method 'close'.");
+    }
 }

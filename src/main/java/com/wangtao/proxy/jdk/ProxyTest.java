@@ -25,30 +25,11 @@ public class ProxyTest {
         UserService userService = new UserServiceImpl();
         UserService proxyUserService = (UserService) Proxy.newProxyInstance(ProxyTest.class.getClassLoader(),
                 userService.getClass().getInterfaces(), new DefaultHandle(userService));
-
-        //生成对象的字节码
-        //saveToDisk(proxyUserService);
         System.out.println(proxyUserService.getClass().getName());
+        // 普通方法
         proxyUserService.service();
-
-
-        /*try {
-            //被代理对象
-            UserService userService = new UserServiceImpl();
-            //拿到代理类的字节码对象
-            Class<?> cls = Proxy.getProxyClass(ProxyTest.class.getClassLoader(),
-                userService.getClass().getInterfaces());
-            //获取构造方法
-            Constructor<?> con = cls.getConstructor(InvocationHandler.class);
-            //获取代理对象
-            UserService proxyUserService = (UserService)con.newInstance(
-                new DefaultHandle(userService));
-            proxyUserService.service();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-
-
+        // 默认方法
+        proxyUserService.close();
     }
 
     /**
