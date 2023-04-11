@@ -35,6 +35,27 @@ public class FileChannelTest {
     }
 
     /**
+     * CREATE: 不存在则先创建
+     * CREATE_NEW: 创建一个新文件, 若存在则抛异常
+     * WRITE: 写权限, 从文件开始写入
+     * APPEND: 写权限, 从文件末尾写入
+     */
+    @Test
+    public void write() {
+        // 创建一个文件, 如果文件存在, 先清空文件, 然后在文件开头写入
+        try (FileChannel channel = FileChannel.open(Paths.get("hello.txt"), StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
+            ByteBuffer buffer = ByteBuffer.allocate(1024);
+            buffer.put("hello world\nhello channel\n".getBytes());
+            // 切成读模式
+            buffer.flip();
+            channel.write(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 复制一个文件
      */
     @Test
