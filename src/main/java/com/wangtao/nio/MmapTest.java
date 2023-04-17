@@ -66,7 +66,7 @@ public class MmapTest {
      */
     @Test
     public void mmapAppend() {
-        // 以读写模式打开一个通道, 文件不存在则新建, 如果存在先清空内容
+        // 以读写模式打开一个通道
         try (FileChannel channel = FileChannel.open(Paths.get("hello.txt"),
                 StandardOpenOption.READ, StandardOpenOption.WRITE)) {
             long oldSize = channel.size();
@@ -96,7 +96,7 @@ public class MmapTest {
      */
     @Test
     public void mmapAppend1() {
-        // 以读写模式打开一个通道, 文件不存在则新建, 如果存在先清空内容
+        // 以读写模式打开一个通道
         try (FileChannel channel = FileChannel.open(Paths.get("hello.txt"),
                 StandardOpenOption.READ, StandardOpenOption.WRITE)) {
             long oldSize = channel.size();
