@@ -37,7 +37,7 @@ public class FileChannelTest {
     /**
      * CREATE: 不存在则先创建
      * CREATE_NEW: 创建一个新文件, 若存在则抛异常
-     * WRITE: 写权限, 从文件开始写入
+     * WRITE: 写权限, 从文件开始写入, 不会清空文件内容
      * APPEND: 写权限, 从文件末尾写入
      */
     @Test
