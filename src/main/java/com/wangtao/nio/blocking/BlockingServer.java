@@ -14,8 +14,7 @@ public class BlockingServer {
 
 
     public static void main(String[] args) {
-        try {
-            ServerSocketChannel ssc = ServerSocketChannel.open();
+        try(ServerSocketChannel ssc = ServerSocketChannel.open()) {
             ssc.bind(new InetSocketAddress(8080));
             try(SocketChannel sc = ssc.accept()) {
                 ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -29,7 +28,7 @@ public class BlockingServer {
                     sc.write(ByteBuffer.wrap("\r\n".getBytes()));
                     sc.write(ByteBuffer.wrap(message));
                 }
-                System.out.println(sc.hashCode() + "will be closed!");
+                System.out.println(sc.hashCode() + " will be closed!");
             } catch (IOException e) {
                 e.printStackTrace();
             }
