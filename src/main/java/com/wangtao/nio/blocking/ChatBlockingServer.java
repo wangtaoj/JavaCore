@@ -33,18 +33,18 @@ public class ChatBlockingServer {
          * 默认情况下为阻塞模式
          * accept、read、write方法都可能被阻塞
          */
-        ExecutorService executor = Executors.newFixedThreadPool(10);
         ServerSocketChannel serverSocketChannel = null;
         try {
             serverSocketChannel = ServerSocketChannel.open();
             // 绑定端口, 不指定ip时，使用本机任意ip都能访问, 相当于bind 0.0.0.0
             serverSocketChannel.bind(new InetSocketAddress(8080));
         } catch (IOException e) {
-            executor.shutdown();
+            log.error("server start fail!", e);
             ChannelUtils.closeQuietly(serverSocketChannel);
-            throw new RuntimeException("server start fail!");
+            return;
         }
 
+        ExecutorService executor = Executors.newFixedThreadPool(10);
         while (!Thread.currentThread().isInterrupted()) {
             SocketChannel socketChannel = null;
             try {
