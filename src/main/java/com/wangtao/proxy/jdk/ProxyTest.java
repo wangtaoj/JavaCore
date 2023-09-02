@@ -1,7 +1,6 @@
 package com.wangtao.proxy.jdk;
 
 import org.junit.Test;
-import sun.misc.ProxyGenerator;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -21,7 +20,7 @@ public class ProxyTest {
      * 注: 不是src下, 而是项目根目录/com/sun/proxy
      */
     @Test
-    public void testProxy()  {
+    public void testProxy() {
         UserService userService = new UserServiceImpl();
         UserService proxyUserService = (UserService) Proxy.newProxyInstance(ProxyTest.class.getClassLoader(),
                 userService.getClass().getInterfaces(), new DefaultHandle(userService));
@@ -45,21 +44,22 @@ public class ProxyTest {
          * 此方法生成的字节码(类名 = name), 会自动继承Proxy, 实现指定的接口列表
          * 里面包含接口的所有方法, 以及hashCode, equals, toString方法
          */
-        byte[] bytes = ProxyGenerator.generateProxyClass(userService.getClass().getSimpleName(),
-                userService.getClass().getInterfaces());
+        // byte[] bytes = ProxyGenerator.generateProxyClass(userService.getClass().getSimpleName(),
+        // userService.getClass().getInterfaces());
+        byte[] bytes = new byte[0];
         String path = ProxyTest.class.getResource("/").getPath() + userService.getClass().getSimpleName() + ".class";
         System.out.println(path);
-        try(OutputStream ops = new FileOutputStream(path)) {
+        try (OutputStream ops = new FileOutputStream(path)) {
             ops.write(bytes);
             ops.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     @Test
     public void test() {
+        /*
         byte[] bytes = ProxyGenerator.generateProxyClass("aa", new Class<?>[] {UserService.class});
         String path = ProxyTest.class.getResource("/").getPath() + "$Proxy.class";
         System.out.println(path);
@@ -69,6 +69,7 @@ public class ProxyTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        */
     }
 
 }
