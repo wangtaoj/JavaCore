@@ -18,6 +18,8 @@ public class File {
      * 第一位为1，则具有X
      * 第二位为1，则具有R
      * 第三位为1，则具有W
+     *
+     * int占用4个字节，也就是32位，最多存在32个单独权限
      */
     private int permission;
 
