@@ -134,6 +134,7 @@ public class Poller implements Runnable {
                 SelectionKey key = socketChannel.keyFor(selector);
                 if (key != null) {
                     int interestOps = key.interestOps() | event.interestOPs();
+                    //noinspection MagicConstant
                     key.interestOps(interestOps);
                     socketChannelWrap.setInterestOps(interestOps);
                     if (key.attachment() == null) {
@@ -150,7 +151,7 @@ public class Poller implements Runnable {
     private void timeout(int selectCount, boolean hasEvent) {
         long now = System.currentTimeMillis();
         boolean shouldHandleTimeoutSocket = false;
-        if ((now > nextTimeoutMillis && nextTimeoutMillis != 0)) {
+        if (now > nextTimeoutMillis) {
             shouldHandleTimeoutSocket = true;
         } else {
             // 还未到处理时间, 判断现在是否空闲
