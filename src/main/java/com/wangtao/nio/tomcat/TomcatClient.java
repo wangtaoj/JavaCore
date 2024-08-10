@@ -26,11 +26,9 @@ public class TomcatClient {
             if ("exit".equals(msg)) {
                 break;
             }
-            if ("ok".equals(msg)) {
-                sendData(socket, "\n");
-            } else {
-                sendData(socket, msg);
-            }
+            sendOnce(socket, msg);
+            // 测试分段发送数据
+            // sendData(socket, msg);
         }
         ChannelUtils.closeQuietly(socket);
     }
@@ -40,6 +38,18 @@ public class TomcatClient {
             socket.getOutputStream().write((msg).getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void sendOnce(Socket socket, String msg) {
+        sendData(socket, msg + "\n");
+    }
+
+    public static void batchSend(Socket socket, String msg) {
+        if ("ok".equals(msg)) {
+            sendData(socket, "\n");
+        } else {
+            sendData(socket, msg);
         }
     }
 
